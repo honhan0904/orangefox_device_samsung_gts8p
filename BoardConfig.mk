@@ -44,6 +44,9 @@ TARGET_USES_UEFI := true
 
 # Display
 TARGET_SCREEN_DENSITY := 340
+# Let TWRP/OrangeFox select the matching landscape theme from the display size.
+TARGET_SCREEN_WIDTH := 2800
+TARGET_SCREEN_HEIGHT := 1752
 
 # Kernel / recovery DTB
 BOARD_KERNEL_IMAGE_NAME := Image
@@ -119,7 +122,6 @@ BOARD_SUPPRESS_SECURE_ERASE := true
 TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
 
 # TWRP Configuration
-TW_THEME := landscape_hdpi
 DEVICE_SCREEN_WIDTH := 2800
 DEVICE_SCREEN_HEIGHT := 1752
 TW_EXTRA_LANGUAGES := true
