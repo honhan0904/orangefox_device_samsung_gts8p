@@ -34,7 +34,7 @@ TARGET_2ND_CPU_VARIANT_RUNTIME := cortex-a75
 # APEX
 DEXPREOPT_GENERATE_APEX_IMAGE := true
 
-# Bootloader
+# Bootloader / SoC
 BOARD_VENDOR := samsung
 TARGET_SOC := taro
 TARGET_BOOTLOADER_BOARD_NAME := taro
@@ -45,28 +45,29 @@ TARGET_USES_UEFI := true
 # Display
 TARGET_SCREEN_DENSITY := 340
 
-# Kernel
+# Kernel / recovery DTB
 BOARD_KERNEL_IMAGE_NAME := Image
-BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image.gz
 TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb
 BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/recovery_dtbo
+BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_INCLUDE_RECOVERY_DTBO := true
 
 # Recovery image packaging. Stock X806B recovery.img is Android boot header v2.
+# The addresses below are taken from the stock X806B recovery header.
 BOARD_BOOTIMG_HEADER_VERSION := 2
 BOARD_KERNEL_BASE := 0x00000000
-BOARD_KERNEL_CMDLINE := video=vfb:640x400,bpp=32,memsize=3072000 printk.devkmsg=on firmware_class.path=/vendor/firmware_mnt/image console=null bootconfig androidboot.hardware=qcom hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 androidboot.init_fatal_panic=true androidboot.selinux=permissive loop.max_part=7
-BOARD_KERNEL_PAGESIZE := 4096
-BOARD_KERNEL_OFFSET := 0x00008000
-BOARD_RAMDISK_OFFSET := 0x02000000
+BOARD_KERNEL_OFFSET := 0x02000000
+BOARD_RAMDISK_OFFSET := 0x00000000
 BOARD_KERNEL_SECOND_OFFSET := 0x00000000
 BOARD_KERNEL_TAGS_OFFSET := 0x01e00000
 BOARD_DTB_OFFSET := 0x01f00000
+BOARD_KERNEL_CMDLINE := video=vfb:640x400,bpp=32,memsize=3072000 printk.devkmsg=on firmware_class.path=/vendor/firmware_mnt/image console=null bootconfig androidboot.hardware=qcom hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 androidboot.init_fatal_panic=true androidboot.selinux=permissive loop.max_part=7
+BOARD_KERNEL_PAGESIZE := 4096
 BOARD_MKBOOTIMG_ARGS += --kernel_offset $(BOARD_KERNEL_OFFSET) --ramdisk_offset $(BOARD_RAMDISK_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_KERNEL_TAGS_OFFSET) --second_offset $(BOARD_KERNEL_SECOND_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOTIMG_HEADER_VERSION) --pagesize $(BOARD_KERNEL_PAGESIZE)
-BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB) --dtb_offset $(BOARD_DTB_OFFSET) --board "SRPUI09A009"
+BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB) --dtb_offset $(BOARD_DTB_OFFSET) --board "SRPUH24B009"
 BOARD_CUSTOM_BOOTIMG_MK := device/samsung/gts8p/bootimg.mk
 
 # Partitions
