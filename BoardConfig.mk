@@ -26,6 +26,8 @@ TARGET_CPU_VARIANT_RUNTIME := kryo300
 
 TARGET_2ND_ARCH := arm
 TARGET_2ND_ARCH_VARIANT := armv7-a-neon
+TARGET_2ND_ARCH := arm
+TARGET_2ND_ARCH_VARIANT := armv7-a-neon
 TARGET_2ND_CPU_ABI := armeabi-v7a
 TARGET_2ND_CPU_ABI2 := armeabi
 TARGET_2ND_CPU_VARIANT := generic
@@ -44,7 +46,6 @@ TARGET_USES_UEFI := true
 
 # Display
 TARGET_SCREEN_DENSITY := 340
-# Let TWRP/OrangeFox select the matching landscape theme from the display size.
 TARGET_SCREEN_WIDTH := 2800
 TARGET_SCREEN_HEIGHT := 1752
 
@@ -57,7 +58,6 @@ BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_INCLUDE_RECOVERY_DTBO := true
 
 # Recovery image packaging. Stock X806B recovery.img is Android boot header v2.
-# The addresses below are taken from the stock X806B recovery header.
 BOARD_BOOTIMG_HEADER_VERSION := 2
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_OFFSET := 0x02000000
@@ -74,7 +74,7 @@ BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB) --dtb_offset $(BOARD_DTB_OF
 BOARD_CUSTOM_BOOTIMG_MK := device/samsung/gts8p/bootimg.mk
 
 # Partitions
-BOARD_FLASH_BLOCK_SIZE := 262144 # (BOARD_KERNEL_PAGESIZE * 64)
+BOARD_FLASH_BLOCK_SIZE := 262144
 BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296
 BOARD_RECOVERYIMAGE_PARTITION_SIZE := 104857600
 BOARD_HAS_LARGE_FILESYSTEM := true
@@ -112,8 +112,6 @@ BOARD_AVB_RECOVERY_ROLLBACK_INDEX_LOCATION := 1
 PLATFORM_SECURITY_PATCH := 2099-12-31
 VENDOR_SECURITY_PATCH := 2099-12-31
 PLATFORM_VERSION := 16.1.0
-# Force ro.build.version.release=16 in the recovery prop.default so Samsung keymint
-# accepts the Android 16 metadata key.
 PLATFORM_VERSION_LAST_STABLE := 16
 
 # System as root
@@ -122,6 +120,7 @@ BOARD_SUPPRESS_SECURE_ERASE := true
 TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
 
 # TWRP Configuration
+TW_THEME := landscape_hdpi
 DEVICE_SCREEN_WIDTH := 2800
 DEVICE_SCREEN_HEIGHT := 1752
 TW_EXTRA_LANGUAGES := true
