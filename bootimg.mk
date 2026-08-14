@@ -1,4 +1,4 @@
-MKBOOTIMG := device/samsung/gts8wifi/mkbootimg
+MKBOOTIMG := device/samsung/gts8p/mkbootimg
 
 FLASH_IMAGE_TARGET ?= $(PRODUCT_OUT)/recovery.tar
 
