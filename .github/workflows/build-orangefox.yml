@@ -1,0 +1,68 @@
+name: Build OrangeFox X806B
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Device-tree branch'
+        required: true
+        default: 'x806b-compat'
+        type: string
+
+jobs:
+  build:
+    # NOTE: fox_12.1 needs at least ~45 GB disk according to OrangeFox build docs.
+    # A standard GitHub-hosted runner may not have enough free disk; use a larger
+    # runner if the repository/account has access to one.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+
+    steps:
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet /usr/local/share/powershell
+          sudo docker system prune -af || true
+          df -h
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git curl python2 python3 bc bison build-essential flex gperf libssl-dev libxml2-utils lz4 rsync unzip zip
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync OrangeFox fox_12.1
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/fox_12.1"
+          git clone --depth=1 https://gitlab.com/OrangeFox/sync.git "$GITHUB_WORKSPACE/OrangeFox_sync"
+          cd "$GITHUB_WORKSPACE/OrangeFox_sync"
+          ./sync/orangefox_sync.sh --branch 12.1 --path "$GITHUB_WORKSPACE/fox_12.1"
+
+      - name: Checkout X806B device tree
+        run: |
+          rm -rf "$GITHUB_WORKSPACE/fox_12.1/device/samsung/gts8p"
+          git clone --depth=1 --branch "${{ inputs.branch }}" https://github.com/honhan0904/orangefox_device_samsung_gts8p.git "$GITHUB_WORKSPACE/fox_12.1/device/samsung/gts8p"
+
+      - name: Build OrangeFox
+        working-directory: ${{ github.workspace }}/fox_12.1
+        shell: bash
+        run: |
+          export ALLOW_MISSING_DEPENDENCIES=true
+          export FOX_BUILD_DEVICE=gts8p
+          export OF_FORCE_PREBUILT_KERNEL=1
+          export OF_DEFAULT_KEYMASTER_VERSION=4.1
+          export OF_DISABLE_MIUI_SPECIFIC_FEATURES=1
+          export LC_ALL=C
+          source build/envsetup.sh
+          lunch twrp_gts8p-eng || lunch orangefox_gts8p-eng
+          mka adbd recoveryimage | tee "$GITHUB_WORKSPACE/build.log"
+
+      - name: Upload recovery image
+        uses: actions/upload-artifact@v4
+        with:
+          name: OrangeFox-gts8p
+          path: |
+            fox_12.1/out/target/product/gts8p/recovery.img
+            fox_12.1/out/target/product/gts8p/OrangeFox-unofficial-gts8p.img
+            build.log
+          if-no-files-found: warn
