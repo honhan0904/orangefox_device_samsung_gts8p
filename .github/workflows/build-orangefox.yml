@@ -79,6 +79,7 @@ jobs:
           grep -q 'TW_THEME := landscape_hdpi' device/samsung/gts8p/BoardConfig.mk
           grep -q 'TARGET_SCREEN_WIDTH := 2800' device/samsung/gts8p/BoardConfig.mk
           grep -q 'TARGET_SCREEN_HEIGHT := 1752' device/samsung/gts8p/BoardConfig.mk
+          grep -q 'BOARD_KERNEL_BASE := 0x02000000' device/samsung/gts8p/BoardConfig.mk
 
       - name: Ensure landscape theme assets
         working-directory: ${{ github.workspace }}/fox_12.1
@@ -143,6 +144,36 @@ jobs:
           command -v mka
           echo "Build parallelism: -j2"
           mka -j2 recoveryimage 2>&1 | tee "$GITHUB_WORKSPACE/build.log"
+
+      - name: Verify recovery image header
+        if: success()
+        working-directory: ${{ github.workspace }}/fox_12.1
+        shell: python
+        run: |
+          import struct
+          from pathlib import Path
+          p = Path("out/target/product/gts8p/recovery.img")
+          data = p.read_bytes()[:1680]
+          assert data[:8] == b"ANDROID!", "Not an Android boot image"
+          kernel_size, ramdisk_size, second_size, kernel_addr, ramdisk_addr, second_addr, tags_addr, page_size, header_version, os_version = struct.unpack_from("<10I", data, 8)
+          recovery_dtbo_size = struct.unpack_from("<I", data, 1632)[0]
+          recovery_dtbo_offset = struct.unpack_from("<Q", data, 1636)[0]
+          dtb_size = struct.unpack_from("<I", data, 1648)[0]
+          dtb_addr = struct.unpack_from("<Q", data, 1652)[0]
+          print(f"kernel_size={kernel_size}")
+          print(f"kernel_addr=0x{kernel_addr:08x}")
+          print(f"ramdisk_size={ramdisk_size}")
+          print(f"tags_addr=0x{tags_addr:08x}")
+          print(f"recovery_dtbo_size={recovery_dtbo_size}")
+          print(f"recovery_dtbo_offset=0x{recovery_dtbo_offset:08x}")
+          print(f"dtb_size={dtb_size}")
+          print(f"dtb_addr=0x{dtb_addr:08x}")
+          print(f"header_version={header_version}")
+          assert kernel_addr == 0x02000000, f"kernel_addr mismatch: 0x{kernel_addr:x}"
+          assert tags_addr == 0x01e00000, f"tags_addr mismatch: 0x{tags_addr:x}"
+          assert dtb_size == 1721460, f"DTB size mismatch: {dtb_size}"
+          assert dtb_addr == 0x01f00000, f"DTB addr mismatch: 0x{dtb_addr:x}"
+          assert recovery_dtbo_size == 2807348, f"recovery_dtbo size mismatch: {recovery_dtbo_size}"
 
       - name: Collect build outputs
         if: always()
