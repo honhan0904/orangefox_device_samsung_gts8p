@@ -34,7 +34,6 @@ jobs:
             bc bison build-essential ccache curl flex g++-multilib gcc-multilib \
             git gperf lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev \
             libssl-dev libxml2-utils lz4 pngcrush rsync unzip zip zlib1g-dev
-
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
@@ -69,10 +68,13 @@ jobs:
         shell: bash
         run: |
           test -f device/samsung/gts8p/BoardConfig.mk
+          test -f device/samsung/gts8p/AndroidProducts.mk
+          test -f device/samsung/gts8p/orangefox_gts8p.mk
           test -f device/samsung/gts8p/prebuilt/Image.gz
           test -f device/samsung/gts8p/prebuilt/dtb
           test -f device/samsung/gts8p/prebuilt/recovery_dtbo
-          grep -q 'PRODUCT_DEVICE := gts8p' device/samsung/gts8p/orangefox_gts8p.mk
+          grep -q 'PRODUCT_NAME := orangefox_gts8p' device/samsung/gts8p/orangefox_gts8p.mk
+          grep -q 'orangefox_gts8p-eng' device/samsung/gts8p/AndroidProducts.mk
           grep -q 'TW_THEME := landscape_hdpi' device/samsung/gts8p/BoardConfig.mk
           grep -q 'DEVICE_SCREEN_WIDTH := 2800' device/samsung/gts8p/BoardConfig.mk
           grep -q 'DEVICE_SCREEN_HEIGHT := 1752' device/samsung/gts8p/BoardConfig.mk
@@ -87,10 +89,9 @@ jobs:
           export OF_DEFAULT_KEYMASTER_VERSION=4.1
           export OF_DISABLE_MIUI_SPECIFIC_FEATURES=1
           export LC_ALL=C
-
           set -o pipefail
           source build/envsetup.sh
-          lunch twrp_gts8p-eng
+          lunch orangefox_gts8p-eng
           mka adbd recoveryimage 2>&1 | tee "$GITHUB_WORKSPACE/build.log"
 
       - name: Collect build outputs
