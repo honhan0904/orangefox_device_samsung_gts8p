@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-LOCAL_PATH := device/samsung/gts8wifi
+LOCAL_PATH := device/samsung/gts8p
 
 # Charger
 PRODUCT_PACKAGES += \
