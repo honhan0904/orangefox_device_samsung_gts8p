@@ -15,10 +15,10 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 # Inherit some common TWRP stuff.
 $(call inherit-product, vendor/twrp/config/common.mk)
 
-# Inherit from gts8wifi device
+# Inherit from gts8p device
 $(call inherit-product, device/samsung/gts8p/device.mk)
 
-PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*,device/samsung/gts8wifi/recovery/root,recovery/root)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*,device/samsung/gts8p/recovery/root,recovery/root)
 
 PRODUCT_DEVICE := gts8p
 PRODUCT_NAME := orangefox_gts8p
