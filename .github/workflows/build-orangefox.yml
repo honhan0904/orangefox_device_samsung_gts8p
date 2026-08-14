@@ -70,6 +70,7 @@ jobs:
           test -f device/samsung/gts8p/BoardConfig.mk
           test -f device/samsung/gts8p/AndroidProducts.mk
           test -f device/samsung/gts8p/orangefox_gts8p.mk
+          test -f device/samsung/gts8p/vendorsetup.sh
           test -f device/samsung/gts8p/prebuilt/Image.gz
           test -f device/samsung/gts8p/prebuilt/dtb
           test -f device/samsung/gts8p/prebuilt/recovery_dtbo
@@ -92,11 +93,6 @@ jobs:
           export TARGET_BUILD_VARIANT=eng
           export TARGET_BUILD_TYPE=release
           export LC_ALL=C
-
-          # Disable the legacy device-specific hook only in CI.
-          if [ -f device/samsung/gts8p/vendorsetup.sh ]; then
-            mv device/samsung/gts8p/vendorsetup.sh device/samsung/gts8p/vendorsetup.sh.disabled
-          fi
 
           set -o pipefail
           set +e
