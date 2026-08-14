@@ -100,6 +100,22 @@ jobs:
           test -s "bootable/recovery/gui/theme/common/landscape.xml"
           find "$THEME_DIR" -maxdepth 1 -type f -print | sort
 
+      - name: Configure build memory and parallelism
+        shell: bash
+        run: |
+          echo "Runner CPU/memory before build:"
+          nproc
+          free -h
+          sudo swapoff /swapfile 2>/dev/null || true
+          sudo rm -f /swapfile
+          sudo fallocate -l 8G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          echo "Runner CPU/memory after enabling 8G swap:"
+          free -h
+          swapon --show
+
       - name: Build OrangeFox
         working-directory: ${{ github.workspace }}/fox_12.1
         shell: bash
@@ -125,7 +141,8 @@ jobs:
           echo "TARGET_BUILD_VARIANT=$TARGET_BUILD_VARIANT"
           echo "ANDROID_BUILD_TOP=$ANDROID_BUILD_TOP"
           command -v mka
-          mka recoveryimage 2>&1 | tee "$GITHUB_WORKSPACE/build.log"
+          echo "Build parallelism: -j2"
+          mka -j2 recoveryimage 2>&1 | tee "$GITHUB_WORKSPACE/build.log"
 
       - name: Collect build outputs
         if: always()
