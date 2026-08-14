@@ -6,9 +6,9 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/orangefox_gts8wifi.mk
+    $(LOCAL_DIR)/orangefox_gts8p.mk
 
 COMMON_LUNCH_CHOICES := \
-    orangefox_gts8wifi-user \
-    orangefox_gts8wifi-userdebug \
-    orangefox_gts8wifi-eng
+    orangefox_gts8p-user \
+    orangefox_gts8p-userdebug \
+    orangefox_gts8p-eng
