@@ -76,9 +76,8 @@ jobs:
           test -f device/samsung/gts8p/prebuilt/recovery_dtbo
           grep -q 'PRODUCT_NAME := orangefox_gts8p' device/samsung/gts8p/orangefox_gts8p.mk
           grep -q 'orangefox_gts8p-eng' device/samsung/gts8p/AndroidProducts.mk
-          grep -q 'TW_THEME := landscape_hdpi' device/samsung/gts8p/BoardConfig.mk
-          grep -q 'DEVICE_SCREEN_WIDTH := 2800' device/samsung/gts8p/BoardConfig.mk
-          grep -q 'DEVICE_SCREEN_HEIGHT := 1752' device/samsung/gts8p/BoardConfig.mk
+          grep -q 'TARGET_SCREEN_WIDTH := 2800' device/samsung/gts8p/BoardConfig.mk
+          grep -q 'TARGET_SCREEN_HEIGHT := 1752' device/samsung/gts8p/BoardConfig.mk
 
       - name: Build OrangeFox
         working-directory: ${{ github.workspace }}/fox_12.1
@@ -95,15 +94,12 @@ jobs:
           export LC_ALL=C
 
           set -o pipefail
-          export PS4='+ ${BASH_SOURCE}:${LINENO}: '
           set +e
           source build/envsetup.sh > "$GITHUB_WORKSPACE/envsetup-trace.log" 2>&1
           ENV_RC=$?
           set -e
           cat "$GITHUB_WORKSPACE/envsetup-trace.log"
           echo "envsetup command exit code: $ENV_RC"
-          # envsetup's last internal test can return 1 even though its environment
-          # is initialized correctly. Keep the current shell/environment and continue.
           echo "TARGET_PRODUCT=$TARGET_PRODUCT"
           echo "TARGET_BUILD_VARIANT=$TARGET_BUILD_VARIANT"
           echo "ANDROID_BUILD_TOP=$ANDROID_BUILD_TOP"
