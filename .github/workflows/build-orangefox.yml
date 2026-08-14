@@ -96,14 +96,14 @@ jobs:
 
           set -o pipefail
           export PS4='+ ${BASH_SOURCE}:${LINENO}: '
-          bash -x -c 'source build/envsetup.sh; true' > "$GITHUB_WORKSPACE/envsetup-trace.log" 2>&1
+          set +e
+          source build/envsetup.sh > "$GITHUB_WORKSPACE/envsetup-trace.log" 2>&1
           ENV_RC=$?
+          set -e
           cat "$GITHUB_WORKSPACE/envsetup-trace.log"
           echo "envsetup command exit code: $ENV_RC"
-          if [ "$ENV_RC" -ne 0 ]; then
-            exit "$ENV_RC"
-          fi
-
+          # envsetup's last internal test can return 1 even though its environment
+          # is initialized correctly. Keep the current shell/environment and continue.
           echo "TARGET_PRODUCT=$TARGET_PRODUCT"
           echo "TARGET_BUILD_VARIANT=$TARGET_BUILD_VARIANT"
           echo "ANDROID_BUILD_TOP=$ANDROID_BUILD_TOP"
