@@ -95,13 +95,11 @@ jobs:
           export LC_ALL=C
 
           set -o pipefail
-          set +e
           export PS4='+ ${BASH_SOURCE}:${LINENO}: '
-          bash -x -c 'source build/envsetup.sh' > "$GITHUB_WORKSPACE/envsetup-trace.log" 2>&1
+          bash -x -c 'source build/envsetup.sh; true' > "$GITHUB_WORKSPACE/envsetup-trace.log" 2>&1
           ENV_RC=$?
-          set -e
           cat "$GITHUB_WORKSPACE/envsetup-trace.log"
-          echo "envsetup exit code: $ENV_RC"
+          echo "envsetup command exit code: $ENV_RC"
           if [ "$ENV_RC" -ne 0 ]; then
             exit "$ENV_RC"
           fi
