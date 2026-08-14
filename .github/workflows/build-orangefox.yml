@@ -88,11 +88,18 @@ jobs:
           export OF_FORCE_PREBUILT_KERNEL=1
           export OF_DEFAULT_KEYMASTER_VERSION=4.1
           export OF_DISABLE_MIUI_SPECIFIC_FEATURES=1
+          export TARGET_PRODUCT=orangefox_gts8p
+          export TARGET_BUILD_VARIANT=eng
+          export TARGET_BUILD_TYPE=release
           export LC_ALL=C
+
           set -o pipefail
           source build/envsetup.sh
-          lunch orangefox_gts8p-eng
-          mka adbd recoveryimage 2>&1 | tee "$GITHUB_WORKSPACE/build.log"
+          echo "TARGET_PRODUCT=$TARGET_PRODUCT"
+          echo "TARGET_BUILD_VARIANT=$TARGET_BUILD_VARIANT"
+          echo "ANDROID_BUILD_TOP=$ANDROID_BUILD_TOP"
+          command -v mka
+          mka recoveryimage 2>&1 | tee "$GITHUB_WORKSPACE/build.log"
 
       - name: Collect build outputs
         if: always()
