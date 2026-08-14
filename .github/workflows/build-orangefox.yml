@@ -93,6 +93,13 @@ jobs:
           export TARGET_BUILD_TYPE=release
           export LC_ALL=C
 
+          # The inherited tree carries a legacy gts8wifi vendorsetup hook that
+          # aborts envsetup before the actual OrangeFox build starts. It is not
+          # needed for this device tree build, so disable it only in the CI copy.
+          if [ -f device/samsung/gts8p/vendorsetup.sh ]; then
+            mv device/samsung/gts8p/vendorsetup.sh device/samsung/gts8p/vendorsetup.sh.disabled
+          fi
+
           set -o pipefail
           source build/envsetup.sh
           echo "TARGET_PRODUCT=$TARGET_PRODUCT"
@@ -109,6 +116,9 @@ jobs:
           cp -v fox_12.1/out/target/product/gts8p/recovery.img "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
           cp -v fox_12.1/out/target/product/gts8p/OrangeFox-unofficial-gts8p.img "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
           cp -v build.log "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
+          if [ -f "$GITHUB_WORKSPACE/fox_12.1/out/target/product/gts8p/recovery.img" ]; then
+            sha256sum "$GITHUB_WORKSPACE/fox_12.1/out/target/product/gts8p/recovery.img" | tee "$GITHUB_WORKSPACE/artifacts/recovery.sha256"
+          fi
 
       - name: Upload build artifacts
         if: always()
