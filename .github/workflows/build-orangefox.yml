@@ -71,6 +71,7 @@ jobs:
           test -f device/samsung/gts8p/AndroidProducts.mk
           test -f device/samsung/gts8p/orangefox_gts8p.mk
           test -f device/samsung/gts8p/vendorsetup.sh
+          test -f device/samsung/gts8p/prebuilt/Image
           test -f device/samsung/gts8p/prebuilt/Image.gz
           test -f device/samsung/gts8p/prebuilt/dtb
           test -f device/samsung/gts8p/prebuilt/recovery_dtbo
@@ -79,7 +80,9 @@ jobs:
           grep -q 'TW_THEME := landscape_hdpi' device/samsung/gts8p/BoardConfig.mk
           grep -q 'TARGET_SCREEN_WIDTH := 2800' device/samsung/gts8p/BoardConfig.mk
           grep -q 'TARGET_SCREEN_HEIGHT := 1752' device/samsung/gts8p/BoardConfig.mk
-          grep -q 'BOARD_KERNEL_BASE := 0x02000000' device/samsung/gts8p/BoardConfig.mk
+          grep -q 'BOARD_KERNEL_BASE := 0x00000000' device/samsung/gts8p/BoardConfig.mk
+          grep -q 'BOARD_KERNEL_OFFSET := 0x00008000' device/samsung/gts8p/BoardConfig.mk
+          grep -q 'BOARD_RAMDISK_OFFSET := 0x02000000' device/samsung/gts8p/BoardConfig.mk
 
       - name: Ensure landscape theme assets
         working-directory: ${{ github.workspace }}/fox_12.1
@@ -169,7 +172,8 @@ jobs:
           print(f"dtb_size={dtb_size}")
           print(f"dtb_addr=0x{dtb_addr:08x}")
           print(f"header_version={header_version}")
-          assert kernel_addr == 0x02000000, f"kernel_addr mismatch: 0x{kernel_addr:x}"
+          assert kernel_addr == 0x00008000, f"kernel_addr mismatch: 0x{kernel_addr:x}"
+          assert ramdisk_addr == 0x02000000, f"ramdisk_addr mismatch: 0x{ramdisk_addr:x}"
           assert tags_addr == 0x01e00000, f"tags_addr mismatch: 0x{tags_addr:x}"
           assert dtb_size == 1721460, f"DTB size mismatch: {dtb_size}"
           assert dtb_addr == 0x01f00000, f"DTB addr mismatch: 0x{dtb_addr:x}"
@@ -181,6 +185,7 @@ jobs:
         run: |
           mkdir -p "$GITHUB_WORKSPACE/artifacts"
           cp -v fox_12.1/out/target/product/gts8p/recovery.img "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
+          cp -v fox_12.1/out/target/product/gts8p/recovery.tar "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
           cp -v fox_12.1/out/target/product/gts8p/OrangeFox-unofficial-gts8p.img "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
           cp -v build.log "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
           cp -v "$GITHUB_WORKSPACE/envsetup-trace.log" "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true

@@ -51,7 +51,8 @@ TARGET_SCREEN_HEIGHT := 1752
 
 # Kernel / recovery DTB
 BOARD_KERNEL_IMAGE_NAME := Image
-TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image.gz
+# Use the uncompressed kernel payload from the stock X806B recovery image.
+TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image
 TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb
 BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/recovery_dtbo
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
@@ -59,10 +60,11 @@ BOARD_INCLUDE_RECOVERY_DTBO := true
 
 # Recovery image packaging. Stock X806B recovery.img is Android boot header v2.
 BOARD_BOOTIMG_HEADER_VERSION := 2
-# Match stock X806B recovery kernel load address.
-BOARD_KERNEL_BASE := 0x02000000
-BOARD_KERNEL_OFFSET := 0x02000000
-BOARD_RAMDISK_OFFSET := 0x00000000
+# Values decoded directly from the stock X806B recovery.img header.
+# mkbootimg writes physical addresses as base + offset.
+BOARD_KERNEL_BASE := 0x00000000
+BOARD_KERNEL_OFFSET := 0x00008000
+BOARD_RAMDISK_OFFSET := 0x02000000
 BOARD_KERNEL_SECOND_OFFSET := 0x00000000
 BOARD_KERNEL_TAGS_OFFSET := 0x01e00000
 BOARD_DTB_OFFSET := 0x01f00000
