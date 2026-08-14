@@ -7,6 +7,6 @@
 
 LOCAL_PATH := $(call my-dir)
 
-ifeq ($(TARGET_DEVICE),gts8wifi)
+ifeq ($(TARGET_DEVICE),gts8p)
 include $(call all-subdir-makefiles,$(LOCAL_PATH))
 endif
