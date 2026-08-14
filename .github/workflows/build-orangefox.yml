@@ -6,7 +6,7 @@ on:
       branch:
         description: 'Device-tree branch'
         required: true
-        default: 'x806b-compat'
+        default: 'mainbranch'
         type: string
 
 permissions:
