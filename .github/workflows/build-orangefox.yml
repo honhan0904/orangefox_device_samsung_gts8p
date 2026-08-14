@@ -38,6 +38,14 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      - name: Install Google repo tool
+        shell: bash
+        run: |
+          curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o repo
+          chmod +x repo
+          sudo install -m 0755 repo /usr/local/bin/repo
+          repo --version
+
       - name: Sync OrangeFox fox_12.1
         shell: bash
         run: |
