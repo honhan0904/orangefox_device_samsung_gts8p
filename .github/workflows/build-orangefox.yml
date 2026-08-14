@@ -9,39 +9,65 @@ on:
         default: 'x806b-compat'
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   build:
-    # NOTE: fox_12.1 needs at least ~45 GB disk according to OrangeFox build docs.
-    # A standard GitHub-hosted runner may not have enough free disk; use a larger
-    # runner if the repository/account has access to one.
-    runs-on: ubuntu-24.04
+    name: Build OrangeFox for SM-X806B
+    runs-on: ubuntu-22.04
     timeout-minutes: 360
 
     steps:
       - name: Free disk space
+        shell: bash
         run: |
           sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet /usr/local/share/powershell
           sudo docker system prune -af || true
           df -h
 
-      - name: Install dependencies
+      - name: Install build dependencies
+        shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get install -y git curl python2 python3 bc bison build-essential flex gperf libssl-dev libxml2-utils lz4 rsync unzip zip
+          sudo apt-get install -y \
+            bc bison build-essential ccache curl flex g++-multilib gcc-multilib \
+            git gperf lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev \
+            libssl-dev libxml2-utils lz4 pngcrush rsync unzip zip zlib1g-dev
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Sync OrangeFox fox_12.1
+        shell: bash
         run: |
           mkdir -p "$GITHUB_WORKSPACE/fox_12.1"
           git clone --depth=1 https://gitlab.com/OrangeFox/sync.git "$GITHUB_WORKSPACE/OrangeFox_sync"
-          cd "$GITHUB_WORKSPACE/OrangeFox_sync"
-          ./sync/orangefox_sync.sh --branch 12.1 --path "$GITHUB_WORKSPACE/fox_12.1"
+          cd "$GITHUB_WORKSPACE/OrangeFox_sync/sync"
+          chmod +x orangefox_sync.sh
+          ./orangefox_sync.sh --branch 12.1 --path "$GITHUB_WORKSPACE/fox_12.1"
 
-      - name: Checkout X806B device tree
+      - name: Install X806B device tree
+        shell: bash
         run: |
           rm -rf "$GITHUB_WORKSPACE/fox_12.1/device/samsung/gts8p"
-          git clone --depth=1 --branch "${{ inputs.branch }}" https://github.com/honhan0904/orangefox_device_samsung_gts8p.git "$GITHUB_WORKSPACE/fox_12.1/device/samsung/gts8p"
+          git clone --depth=1 \
+            --branch "${{ inputs.branch }}" \
+            https://github.com/honhan0904/orangefox_device_samsung_gts8p.git \
+            "$GITHUB_WORKSPACE/fox_12.1/device/samsung/gts8p"
+
+      - name: Verify device tree
+        working-directory: ${{ github.workspace }}/fox_12.1
+        shell: bash
+        run: |
+          test -f device/samsung/gts8p/BoardConfig.mk
+          test -f device/samsung/gts8p/prebuilt/Image.gz
+          test -f device/samsung/gts8p/prebuilt/dtb
+          test -f device/samsung/gts8p/prebuilt/recovery_dtbo
+          grep -q 'PRODUCT_DEVICE := gts8p' device/samsung/gts8p/orangefox_gts8p.mk
+          grep -q 'TW_THEME := landscape_hdpi' device/samsung/gts8p/BoardConfig.mk
+          grep -q 'DEVICE_SCREEN_WIDTH := 2800' device/samsung/gts8p/BoardConfig.mk
+          grep -q 'DEVICE_SCREEN_HEIGHT := 1752' device/samsung/gts8p/BoardConfig.mk
 
       - name: Build OrangeFox
         working-directory: ${{ github.workspace }}/fox_12.1
@@ -53,16 +79,25 @@ jobs:
           export OF_DEFAULT_KEYMASTER_VERSION=4.1
           export OF_DISABLE_MIUI_SPECIFIC_FEATURES=1
           export LC_ALL=C
-          source build/envsetup.sh
-          lunch twrp_gts8p-eng || lunch orangefox_gts8p-eng
-          mka adbd recoveryimage | tee "$GITHUB_WORKSPACE/build.log"
 
-      - name: Upload recovery image
+          set -o pipefail
+          source build/envsetup.sh
+          lunch twrp_gts8p-eng
+          mka adbd recoveryimage 2>&1 | tee "$GITHUB_WORKSPACE/build.log"
+
+      - name: Collect build outputs
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/artifacts"
+          cp -v fox_12.1/out/target/product/gts8p/recovery.img "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
+          cp -v fox_12.1/out/target/product/gts8p/OrangeFox-unofficial-gts8p.img "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
+          cp -v build.log "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
+
+      - name: Upload build artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: OrangeFox-gts8p
-          path: |
-            fox_12.1/out/target/product/gts8p/recovery.img
-            fox_12.1/out/target/product/gts8p/OrangeFox-unofficial-gts8p.img
-            build.log
+          path: artifacts/
           if-no-files-found: warn
