@@ -76,8 +76,29 @@ jobs:
           test -f device/samsung/gts8p/prebuilt/recovery_dtbo
           grep -q 'PRODUCT_NAME := orangefox_gts8p' device/samsung/gts8p/orangefox_gts8p.mk
           grep -q 'orangefox_gts8p-eng' device/samsung/gts8p/AndroidProducts.mk
+          grep -q 'TW_THEME := landscape_hdpi' device/samsung/gts8p/BoardConfig.mk
           grep -q 'TARGET_SCREEN_WIDTH := 2800' device/samsung/gts8p/BoardConfig.mk
           grep -q 'TARGET_SCREEN_HEIGHT := 1752' device/samsung/gts8p/BoardConfig.mk
+
+      - name: Ensure landscape theme assets
+        working-directory: ${{ github.workspace }}/fox_12.1
+        shell: bash
+        run: |
+          THEME_DIR="bootable/recovery/gui/theme/landscape_hdpi"
+          if [ ! -s "$THEME_DIR/ui.xml" ]; then
+            echo "OrangeFox fox_12.1 is missing landscape_hdpi/ui.xml; importing the TWRP 12.1 landscape theme as a build fallback."
+            rm -rf "$GITHUB_WORKSPACE/twrp-theme"
+            git clone --depth=1 --filter=blob:none --sparse --branch android-12.1 \
+              https://github.com/TeamWin/android_bootable_recovery.git \
+              "$GITHUB_WORKSPACE/twrp-theme"
+            git -C "$GITHUB_WORKSPACE/twrp-theme" sparse-checkout set gui/theme
+            rm -rf bootable/recovery/gui/theme
+            mkdir -p bootable/recovery/gui
+            cp -a "$GITHUB_WORKSPACE/twrp-theme/gui/theme" bootable/recovery/gui/
+          fi
+          test -s "$THEME_DIR/ui.xml"
+          test -s "bootable/recovery/gui/theme/common/landscape.xml"
+          find "$THEME_DIR" -maxdepth 1 -type f -print | sort
 
       - name: Build OrangeFox
         working-directory: ${{ github.workspace }}/fox_12.1
