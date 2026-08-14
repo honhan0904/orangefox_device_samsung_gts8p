@@ -43,7 +43,7 @@ jobs:
         run: |
           mkdir -p "$GITHUB_WORKSPACE/fox_12.1"
           git clone --depth=1 https://gitlab.com/OrangeFox/sync.git "$GITHUB_WORKSPACE/OrangeFox_sync"
-          cd "$GITHUB_WORKSPACE/OrangeFox_sync/sync"
+          cd "$GITHUB_WORKSPACE/OrangeFox_sync"
           chmod +x orangefox_sync.sh
           ./orangefox_sync.sh --branch 12.1 --path "$GITHUB_WORKSPACE/fox_12.1"
 
