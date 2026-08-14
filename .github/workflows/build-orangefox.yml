@@ -93,15 +93,23 @@ jobs:
           export TARGET_BUILD_TYPE=release
           export LC_ALL=C
 
-          # The inherited tree carries a legacy gts8wifi vendorsetup hook that
-          # aborts envsetup before the actual OrangeFox build starts. It is not
-          # needed for this device tree build, so disable it only in the CI copy.
+          # Disable the legacy device-specific hook only in CI.
           if [ -f device/samsung/gts8p/vendorsetup.sh ]; then
             mv device/samsung/gts8p/vendorsetup.sh device/samsung/gts8p/vendorsetup.sh.disabled
           fi
 
           set -o pipefail
-          source build/envsetup.sh
+          set +e
+          export PS4='+ ${BASH_SOURCE}:${LINENO}: '
+          bash -x -c 'source build/envsetup.sh' > "$GITHUB_WORKSPACE/envsetup-trace.log" 2>&1
+          ENV_RC=$?
+          set -e
+          cat "$GITHUB_WORKSPACE/envsetup-trace.log"
+          echo "envsetup exit code: $ENV_RC"
+          if [ "$ENV_RC" -ne 0 ]; then
+            exit "$ENV_RC"
+          fi
+
           echo "TARGET_PRODUCT=$TARGET_PRODUCT"
           echo "TARGET_BUILD_VARIANT=$TARGET_BUILD_VARIANT"
           echo "ANDROID_BUILD_TOP=$ANDROID_BUILD_TOP"
@@ -116,6 +124,7 @@ jobs:
           cp -v fox_12.1/out/target/product/gts8p/recovery.img "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
           cp -v fox_12.1/out/target/product/gts8p/OrangeFox-unofficial-gts8p.img "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
           cp -v build.log "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
+          cp -v "$GITHUB_WORKSPACE/envsetup-trace.log" "$GITHUB_WORKSPACE/artifacts/" 2>/dev/null || true
           if [ -f "$GITHUB_WORKSPACE/fox_12.1/out/target/product/gts8p/recovery.img" ]; then
             sha256sum "$GITHUB_WORKSPACE/fox_12.1/out/target/product/gts8p/recovery.img" | tee "$GITHUB_WORKSPACE/artifacts/recovery.sha256"
           fi
