@@ -123,7 +123,9 @@ TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
 # TWRP Configuration
 TW_THEME := portrait_hdpi
 TW_EXTRA_LANGUAGES := true
-TW_SCREEN_BLANK_ON_BOOT := true
+# Keep the panel awake during bring-up; the X806B display otherwise stays black.
+TW_SCREEN_BLANK_ON_BOOT := false
+TW_NO_SCREEN_BLANK := true
 TW_INPUT_BLACKLIST := "hbtp_vm"
 TW_USE_TOOLBOX := true
 TW_FRAMERATE := 120
