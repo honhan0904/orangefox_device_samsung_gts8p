@@ -99,7 +99,7 @@ jobs:
             cp -a "$GITHUB_WORKSPACE/twrp-theme/gui/theme" bootable/recovery/gui/
           fi
           test -s "$THEME_DIR/ui.xml"
-          test -s "bootable/recovery/gui/theme/common/portrait.xml"
+          test -s "$THEME_DIR/splash.xml"
           find "$THEME_DIR" -maxdepth 1 -type f -print | sort
 
       - name: Prepare AVB tool
