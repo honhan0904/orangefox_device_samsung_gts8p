@@ -104,6 +104,14 @@ jobs:
           test -s "bootable/recovery/gui/theme/common/landscape.xml"
           find "$THEME_DIR" -maxdepth 1 -type f -print | sort
 
+      - name: Prepare AVB tool
+        working-directory: ${{ github.workspace }}/fox_12.1
+        shell: bash
+        run: |
+          test -f external/avb/avbtool.py
+          install -D -m 0755 external/avb/avbtool.py out/host/linux-x86/bin/avbtool
+          out/host/linux-x86/bin/avbtool version
+
       - name: Configure build memory and parallelism
         shell: bash
         run: |
