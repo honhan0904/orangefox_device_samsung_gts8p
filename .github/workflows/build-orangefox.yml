@@ -82,6 +82,26 @@ jobs:
           grep -q 'BOARD_KERNEL_OFFSET := 0x00008000' device/samsung/gts8p/BoardConfig.mk
           grep -q 'BOARD_RAMDISK_OFFSET := 0x02000000' device/samsung/gts8p/BoardConfig.mk
 
+      - name: Ensure portrait theme assets
+        working-directory: ${{ github.workspace }}/fox_12.1
+        shell: bash
+        run: |
+          THEME_DIR="bootable/recovery/gui/theme/portrait_hdpi"
+          if [ ! -s "$THEME_DIR/ui.xml" ]; then
+            echo "OrangeFox fox_12.1 is missing portrait_hdpi/ui.xml; importing the TWRP 12.1 portrait theme as a build fallback."
+            rm -rf "$GITHUB_WORKSPACE/twrp-theme"
+            git clone --depth=1 --filter=blob:none --sparse --branch android-12.1 \
+              https://github.com/TeamWin/android_bootable_recovery.git \
+              "$GITHUB_WORKSPACE/twrp-theme"
+            git -C "$GITHUB_WORKSPACE/twrp-theme" sparse-checkout set gui/theme
+            rm -rf bootable/recovery/gui/theme
+            mkdir -p bootable/recovery/gui
+            cp -a "$GITHUB_WORKSPACE/twrp-theme/gui/theme" bootable/recovery/gui/
+          fi
+          test -s "$THEME_DIR/ui.xml"
+          test -s "bootable/recovery/gui/theme/common/portrait.xml"
+          find "$THEME_DIR" -maxdepth 1 -type f -print | sort
+
       - name: Prepare AVB tool
         working-directory: ${{ github.workspace }}/fox_12.1
         shell: bash

@@ -30,8 +30,8 @@ __gts8p_install_theme() {
     [ -z "$top" ] && return 0
 
     # OrangeFox's build expects these files under the device recovery root.
-    # The X806B tree uses the landscape_hdpi theme.
-    theme="$top/bootable/recovery/gui/theme/landscape_hdpi"
+    # The X806B tree follows the reference gts8wifi portrait_hdpi theme.
+    theme="$top/bootable/recovery/gui/theme/portrait_hdpi"
     dest="$top/device/samsung/gts8p/recovery/root/twres"
 
     [ -d "$theme" ] || { echo "gts8p: WARNING: theme directory not found: $theme"; return 0; }
